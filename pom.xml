@@ -87,7 +87,7 @@
 		<!-- sporniket core -->
 		<dependency>
 			<groupId>com.sporniket.core</groupId>
-			<artifactId>sporniket-core-lang</artifactId>
+			<artifactId>sporniket-core-io</artifactId>
 			<version>${version.sporniket.core}</version>
 		</dependency>
 
