@@ -10,5 +10,5 @@ package com.sporniket.libre.p3;
  */
 interface PropertyNameMatcher
 {
-	boolean isMatchForProperty(String propertyName);
+	boolean isMatching(String propertyName);
 }
