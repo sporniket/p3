@@ -3,6 +3,8 @@
  */
 package com.sporniket.libre.p3;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,36 +19,132 @@ import com.sporniket.libre.io.parser.properties.SingleLinePropertyParsedEvent;
 public class P3 implements PropertiesParsingListener
 {
 	/**
-	 * A <em>processor</em> is defined by the {@link PropertyNameMatcher} that select the properties for which it is appliable, and
-	 * the {@link PropertiesParsingListener} that implement the actual processing.
+	 * A <em>processor</em> is an object's method accepting the property name and the property value (a <code>String</code> or a
+	 * <code>String[]</code>) .
+	 * 
+	 * The object owning the method is the processor holder.
 	 * 
 	 * @author dsporn
 	 *
 	 */
-	private static class Processor
+	private static class ProcessorSpec
 	{
-		public final PropertiesParsingListener myListener;
+		public final Method myProcessor;
 
-		public final PropertyNameMatcher myMatcher;
+		public final Object myProcessorHolder;
 
-		public Processor(PropertyNameMatcher matcher, PropertiesParsingListener listener)
+		public ProcessorSpec(Object processorHolder, Method processor)
+		{
+			myProcessorHolder = processorHolder;
+			myProcessor = processor;
+		}
+
+		public Method getProcessor()
+		{
+			return myProcessor;
+		}
+
+		public Object getProcessorHolder()
+		{
+			return myProcessorHolder;
+		}
+
+		/**
+		 * Call the processor on a single line property.
+		 * 
+		 * @param name
+		 *            value name.
+		 * @param value
+		 *            value.
+		 */
+		public void process(String name, String value)
+		{
+			try
+			{
+				getProcessor().invoke(getProcessorHolder(), name, value);
+			}
+			catch (IllegalAccessException _exception)
+			{
+				throw new RuntimeException(_exception);
+			}
+			catch (IllegalArgumentException _exception)
+			{
+				throw new RuntimeException(_exception);
+			}
+			catch (InvocationTargetException _exception)
+			{
+				throw new RuntimeException(_exception);
+			}
+		}
+
+		/**
+		 * Call the processor on a multiple line property.
+		 * 
+		 * @param name
+		 *            value name.
+		 * @param value
+		 *            value.
+		 */
+		public void process(String name, String[] value)
+		{
+			try
+			{
+				getProcessor().invoke(getProcessorHolder(), name, value);
+			}
+			catch (IllegalAccessException _exception)
+			{
+				throw new RuntimeException(_exception);
+			}
+			catch (IllegalArgumentException _exception)
+			{
+				throw new RuntimeException(_exception);
+			}
+			catch (InvocationTargetException _exception)
+			{
+				throw new RuntimeException(_exception);
+			}
+		}
+	}
+
+	/**
+	 * A processing rule is a list of {@link ProcessorSpec} restricted by a {@link PropertyNameMatcher}.
+	 * 
+	 * @author dsporn
+	 *
+	 */
+	private static class RuleSpec
+	{
+		private final PropertyNameMatcher myMatcher;
+
+		private final List<ProcessorSpec> myProcessors;
+
+		public RuleSpec(PropertyNameMatcher matcher, List<ProcessorSpec> processors)
 		{
 			myMatcher = matcher;
-			myListener = listener;
+			myProcessors = new ArrayList<P3.ProcessorSpec>(processors);
 		}
 
-		private PropertiesParsingListener getListener()
-		{
-			return myListener;
-		}
-
-		private PropertyNameMatcher getMatcher()
+		public PropertyNameMatcher getMatcher()
 		{
 			return myMatcher;
 		}
+
+		public List<ProcessorSpec> getProcessors()
+		{
+			return myProcessors;
+		}
+
 	}
-	
-	private final List<Processor> myProcessors = new ArrayList<P3.Processor>() ;
+
+	/**
+	 * Rule specifications for processing multiple line properties.
+	 */
+	private final List<RuleSpec> myProcessorRuleSpecsForMultipleLineProperty = new ArrayList<P3.RuleSpec>();
+
+	/**
+	 * Rule specifications for processing single line properties.
+	 */
+	private final List<RuleSpec> myProcessorRuleSpecsForSingleLineProperty = new ArrayList<P3.RuleSpec>();
 
 	/*
 	 * (non-Javadoc)
@@ -58,11 +156,15 @@ public class P3 implements PropertiesParsingListener
 	@Override
 	public void onMultipleLinePropertyParsed(MultipleLinePropertyParsedEvent event)
 	{
-		for (Processor _p : getProcessors())
+		for (RuleSpec _rule : getProcessorRuleSpecsForMultipleLineProperty())
 		{
-			if (_p.getMatcher().isMatching(event.getName()))
+			if (_rule.getMatcher().isMatching(event.getName()))
 			{
-				_p.getListener().onMultipleLinePropertyParsed(event);
+				for (ProcessorSpec _processor : _rule.getProcessors())
+				{
+					_processor.process(event.getName(), event.getValue());
+				}
+				break;
 			}
 		}
 	}
@@ -77,18 +179,27 @@ public class P3 implements PropertiesParsingListener
 	@Override
 	public void onSingleLinePropertyParsed(SingleLinePropertyParsedEvent event)
 	{
-		for (Processor _p : getProcessors())
+		for (RuleSpec _rule : getProcessorRuleSpecsForSingleLineProperty())
 		{
-			if (_p.getMatcher().isMatching(event.getName()))
+			if (_rule.getMatcher().isMatching(event.getName()))
 			{
-				_p.getListener().onSingleLinePropertyParsed(event);
+				for (ProcessorSpec _processor : _rule.getProcessors())
+				{
+					_processor.process(event.getName(), event.getValue());
+				}
+				break;
 			}
 		}
 	}
 
-	private List<Processor> getProcessors()
+	private List<RuleSpec> getProcessorRuleSpecsForMultipleLineProperty()
 	{
-		return myProcessors;
+		return myProcessorRuleSpecsForMultipleLineProperty;
+	}
+
+	private List<RuleSpec> getProcessorRuleSpecsForSingleLineProperty()
+	{
+		return myProcessorRuleSpecsForSingleLineProperty;
 	}
 
 }
