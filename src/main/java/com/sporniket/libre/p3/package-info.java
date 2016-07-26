@@ -1,7 +1,5 @@
 /**
- * 
- */
-/**
+ * P3 : Programmable Properties Processor.
  * @author dsporn
  *
  */
