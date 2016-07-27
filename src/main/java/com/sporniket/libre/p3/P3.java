@@ -3,14 +3,26 @@
  */
 package com.sporniket.libre.p3;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
+
 import com.sporniket.libre.io.parser.properties.MultipleLinePropertyParsedEvent;
 import com.sporniket.libre.io.parser.properties.PropertiesParsingListener;
 import com.sporniket.libre.io.parser.properties.SingleLinePropertyParsedEvent;
+import com.sporniket.scripting.sslpoi.TestUtils;
+import com.sporniket.scripting.sslpoi.core.SslpoiException;
+import com.sporniket.scripting.sslpoi.mass.Statement;
+import com.sporniket.scripting.sslpoi.mass.StatementFromNode;
+import com.sporniket.scripting.sslpoi.vess.AnalyzerLexical;
+import com.sporniket.scripting.sslpoi.vess.AnalyzerSyntaxic;
+import com.sporniket.scripting.sslpoi.vess.VessNode;
 
 /**
  * P3 (Programmable Property Processor) is a {@link PropertiesParsingListener} that will dispatch received
@@ -241,12 +253,14 @@ public class P3 implements PropertiesParsingListener
 
 		try
 		{
-			Method _processorSingleLineProperty = this.getClass().getMethod(METHOD_NAME__DIRECTIVES_PROCESSOR, String.class, String.class);
+			Method _processorSingleLineProperty = this.getClass().getMethod(METHOD_NAME__DIRECTIVES_PROCESSOR, String.class,
+					String.class);
 			ProcessorSpec _processorSpecSingleLineProperty = new ProcessorSpec(this, _processorSingleLineProperty);
 			RuleSpec _ruleSpecSingleLineProperty = new RuleSpec(_matcher, _processorSpecSingleLineProperty);
 			getProcessorRuleSpecsForSingleLineProperty().add(_ruleSpecSingleLineProperty);
 
-			Method _processorMultipleLineProperty = this.getClass().getMethod(METHOD_NAME__DIRECTIVES_PROCESSOR, String.class, String[].class);
+			Method _processorMultipleLineProperty = this.getClass().getMethod(METHOD_NAME__DIRECTIVES_PROCESSOR, String.class,
+					String[].class);
 			ProcessorSpec _processorSpecMultipleLineProperty = new ProcessorSpec(this, _processorMultipleLineProperty);
 			RuleSpec _ruleSpecMultipleLineProperty = new RuleSpec(_matcher, _processorSpecMultipleLineProperty);
 			getProcessorRuleSpecsForMultipleLineProperty().add(_ruleSpecMultipleLineProperty);
@@ -316,11 +330,12 @@ public class P3 implements PropertiesParsingListener
 	@SuppressWarnings("unused")
 	private void executeProgram(String name, String source) throws Exception
 	{
-		String[] _sourceAsStringArray = new String[]
+		List<Statement> _directives = executeProgram__compile(source);
+		if (!_directives.isEmpty())
 		{
-			source
-		};
-		executeProgram(name, _sourceAsStringArray);
+			// FIXME implement the scanning of each statement to build the ruleset
+		}
+		throw new Exception("not implemented yet !");
 	}
 
 	/**
@@ -335,7 +350,53 @@ public class P3 implements PropertiesParsingListener
 	 */
 	private void executeProgram(String name, String[] source) throws Exception
 	{
-		throw new Exception("not implemented yet !");
+		String _singleStringSource = executeProgram__makeSingleStringSource(source);
+		executeProgram(name, _singleStringSource);
+	}
+
+	private List<Statement> executeProgram__compile(String source) throws Exception, SslpoiException
+	{
+		AnalyzerSyntaxic _parser = executeProgram__createParser();
+		VessNode _parsed = executeProgram__parseSource(source, _parser);
+		List<Statement> _directives = new ArrayList<Statement>(StatementFromNode.convertNodeList(_parsed));
+		return _directives;
+	}
+
+	private AnalyzerSyntaxic executeProgram__createParser()
+	{
+		final ComplexSymbolFactory _symbolFactory = new ComplexSymbolFactory();
+		final AnalyzerLexical _lexer = new AnalyzerLexical(null);
+		_lexer.setSymbolFactory(_symbolFactory);
+		AnalyzerSyntaxic _parser = new AnalyzerSyntaxic(_lexer, _symbolFactory);
+		return _parser;
+	}
+
+	private String executeProgram__makeSingleStringSource(String[] source)
+	{
+		StringBuilder _result = new StringBuilder();
+		for (String _line : source)
+		{
+			if (0 != _result.length())
+			{
+				_result.append("\n");
+			}
+			_result.append(_line);
+		}
+		return _result.toString();
+	}
+
+	private VessNode executeProgram__parseSource(String source, AnalyzerSyntaxic parser) throws Exception
+	{
+		Reader statementReader = new StringReader(source);
+		((AnalyzerLexical) parser.getScanner()).yyreset(statementReader);
+		final ComplexSymbol _symbol = (ComplexSymbol) parser.debug_parse();
+		Object _value = _symbol.value;
+		if (_value instanceof VessNode)
+		{
+			VessNode _node = (VessNode) _value;
+			return _node;
+		}
+		throw new IllegalStateException("No node found for '" + source + "'");
 	}
 
 	private List<RuleSpec> getProcessorRuleSpecsForMultipleLineProperty()
