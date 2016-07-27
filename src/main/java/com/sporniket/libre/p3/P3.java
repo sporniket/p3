@@ -13,6 +13,70 @@ import com.sporniket.libre.io.parser.properties.PropertiesParsingListener;
 import com.sporniket.libre.io.parser.properties.SingleLinePropertyParsedEvent;
 
 /**
+ * P3 (Programmable Property Processor) is a {@link PropertiesParsingListener} that will dispatch received
+ * {@link SingleLinePropertyParsedEvent} and {@link MultipleLinePropertyParsedEvent} to other {@link PropertiesParsingListener}
+ * according to the property name of the event.
+ * 
+ * To setup this dispatching, this listener wait for a specific property (by default,
+ * <code>{@link #DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES}={@value #DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES}</code>) containing a list of
+ * directives written using the <a href="http://github.com/sporniket/sslpoi">Sporny Scripting Language</a>.
+ * 
+ * A typical script will looks like :
+ * 
+ * <pre>
+ * define foo as new com.foo.Foo
+ * define bar as new com.foo.Bar
+ * 
+ * on onSingleLinePropertyParsed with a String named name, a String named value
+ *     if name is like "foo\\..*"
+ *         call processFoo from foo using name as name, value as value
+ *     else if name is like "foo2\\..*"
+ *         call processFoo2 from foo using name as name, value as value
+ *     else
+ *         call process from foo using name as name, value as value
+ *     endif
+ * endon
+ * 
+ * on onMultipleLinePropertyParsed with a String named name, a String[] named value
+ *     if name is "bar"
+ *         call processBar from bar using name as name, value as value
+ *         call process from foo using name as name, value as value
+ *     endif
+ * endon
+ * </pre>
+ * 
+ * A valid processor is a method that accepts two parameters : a String that is the property name, and a String or a String array
+ * that is the property value. Thus, in the example, the class <code>com.foo.Foo</code> and <code>com.foo.Bar</code> look like :
+ * 
+ * <pre>
+ * package com.foo;
+ * 
+ * //...
+ * public class Foo
+ * {
+ * 	// ...
+ * 	public void process(String name, String value) {...}
+ * 
+ * 	public void process(String name, String[] value) {...}
+ * 
+ * 	public void processFoo(String name, String value) {...}
+ * 
+ * 	public void processFoo2(String name, String value) {...}
+ * 	// ...
+ * }
+ * 
+ * // ...
+ * public class Bar
+ * {
+ * 	// ...
+ * 	public void processBar(String name, String value) {...}
+ * 	// ...
+ * }
+ * </pre>
+ * 
+ * The processor selection is done by comparing the property name to a specific value (e.g. <code>is "specific.value"</code>) or to
+ * a pattern (a regexp, e.g. <code>is like "my\\.regexp"</code>). More than one processor may be called for matched property name.
+ * 
  * @author dsporn
  *
  */
@@ -118,10 +182,18 @@ public class P3 implements PropertiesParsingListener
 
 		private final List<ProcessorSpec> myProcessors;
 
+		@SuppressWarnings("unused")
 		public RuleSpec(PropertyNameMatcher matcher, List<ProcessorSpec> processors)
 		{
 			myMatcher = matcher;
 			myProcessors = new ArrayList<P3.ProcessorSpec>(processors);
+		}
+
+		public RuleSpec(PropertyNameMatcher matcher, ProcessorSpec singleProcessor)
+		{
+			myMatcher = matcher;
+			myProcessors = new ArrayList<P3.ProcessorSpec>(1);
+			myProcessors.add(singleProcessor);
 		}
 
 		public PropertyNameMatcher getMatcher()
@@ -136,6 +208,10 @@ public class P3 implements PropertiesParsingListener
 
 	}
 
+	public static final String DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES = "__DIRECTIVES__";
+
+	private static final String METHOD_NAME__DIRECTIVES_PROCESSOR = "executeProgram";
+
 	/**
 	 * Rule specifications for processing multiple line properties.
 	 */
@@ -145,6 +221,41 @@ public class P3 implements PropertiesParsingListener
 	 * Rule specifications for processing single line properties.
 	 */
 	private final List<RuleSpec> myProcessorRuleSpecsForSingleLineProperty = new ArrayList<P3.RuleSpec>();
+
+	/**
+	 * Create a P3 looking for directives from the property {@link #DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES}.
+	 */
+	public P3()
+	{
+		this(DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES);
+	}
+
+	/**
+	 * Create a P3 looking for directives from the specified property.
+	 * 
+	 * @param directivesName
+	 */
+	public P3(String directivesName)
+	{
+		PropertyNameMatcherExactMatch _matcher = new PropertyNameMatcherExactMatch(directivesName);
+
+		try
+		{
+			Method _processorSingleLineProperty = this.getClass().getMethod(METHOD_NAME__DIRECTIVES_PROCESSOR, String.class, String.class);
+			ProcessorSpec _processorSpecSingleLineProperty = new ProcessorSpec(this, _processorSingleLineProperty);
+			RuleSpec _ruleSpecSingleLineProperty = new RuleSpec(_matcher, _processorSpecSingleLineProperty);
+			getProcessorRuleSpecsForSingleLineProperty().add(_ruleSpecSingleLineProperty);
+
+			Method _processorMultipleLineProperty = this.getClass().getMethod(METHOD_NAME__DIRECTIVES_PROCESSOR, String.class, String[].class);
+			ProcessorSpec _processorSpecMultipleLineProperty = new ProcessorSpec(this, _processorMultipleLineProperty);
+			RuleSpec _ruleSpecMultipleLineProperty = new RuleSpec(_matcher, _processorSpecMultipleLineProperty);
+			getProcessorRuleSpecsForMultipleLineProperty().add(_ruleSpecMultipleLineProperty);
+		}
+		catch (NoSuchMethodException | SecurityException _exception)
+		{
+			throw new RuntimeException(_exception);
+		}
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -190,6 +301,41 @@ public class P3 implements PropertiesParsingListener
 				break;
 			}
 		}
+	}
+
+	/**
+	 * The processor for extracting directives.
+	 * 
+	 * @param name
+	 *            property name, unused.
+	 * @param source
+	 *            the directives.
+	 * @throws Exception
+	 *             when there is a problem.
+	 */
+	@SuppressWarnings("unused")
+	private void executeProgram(String name, String source) throws Exception
+	{
+		String[] _sourceAsStringArray = new String[]
+		{
+			source
+		};
+		executeProgram(name, _sourceAsStringArray);
+	}
+
+	/**
+	 * The processor for extracting directives.
+	 * 
+	 * @param name
+	 *            property name, unused.
+	 * @param source
+	 *            the directives.
+	 * @throws Exception
+	 *             when there is a problem.
+	 */
+	private void executeProgram(String name, String[] source) throws Exception
+	{
+		throw new Exception("not implemented yet !");
 	}
 
 	private List<RuleSpec> getProcessorRuleSpecsForMultipleLineProperty()
