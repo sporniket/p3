@@ -8,7 +8,12 @@ import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import java_cup.runtime.ComplexSymbolFactory;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
@@ -16,7 +21,6 @@ import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import com.sporniket.libre.io.parser.properties.MultipleLinePropertyParsedEvent;
 import com.sporniket.libre.io.parser.properties.PropertiesParsingListener;
 import com.sporniket.libre.io.parser.properties.SingleLinePropertyParsedEvent;
-import com.sporniket.scripting.sslpoi.TestUtils;
 import com.sporniket.scripting.sslpoi.core.SslpoiException;
 import com.sporniket.scripting.sslpoi.mass.Statement;
 import com.sporniket.scripting.sslpoi.mass.StatementFromNode;
@@ -29,10 +33,12 @@ import com.sporniket.scripting.sslpoi.vess.VessNode;
  * {@link SingleLinePropertyParsedEvent} and {@link MultipleLinePropertyParsedEvent} to other {@link PropertiesParsingListener}
  * according to the property name of the event.
  * 
+ * <p>
  * To setup this dispatching, this listener wait for a specific property (by default,
  * <code>{@link #DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES}={@value #DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES}</code>) containing a list of
  * directives written using the <a href="http://github.com/sporniket/sslpoi">Sporny Scripting Language</a>.
  * 
+ * <p>
  * A typical script will looks like :
  * 
  * <pre>
@@ -57,6 +63,7 @@ import com.sporniket.scripting.sslpoi.vess.VessNode;
  * endon
  * </pre>
  * 
+ * <p>
  * A valid processor is a method that accepts two parameters : a String that is the property name, and a String or a String array
  * that is the property value. Thus, in the example, the class <code>com.foo.Foo</code> and <code>com.foo.Bar</code> look like :
  * 
@@ -86,13 +93,18 @@ import com.sporniket.scripting.sslpoi.vess.VessNode;
  * }
  * </pre>
  * 
+ * <p>
  * The processor selection is done by comparing the property name to a specific value (e.g. <code>is "specific.value"</code>) or to
  * a pattern (a regexp, e.g. <code>is like "my\\.regexp"</code>). More than one processor may be called for matched property name.
+ * 
+ * <p>
+ * P3 is a <strong>read-only</strong> {@link Map}, objects created in the directives are accessible using the identifier as a key,
+ * e.g <code>_p3.get("foo")</code>.
  * 
  * @author dsporn
  *
  */
-public class P3 implements PropertiesParsingListener
+public class P3 implements PropertiesParsingListener, Map<String, Object>
 {
 	/**
 	 * A <em>processor</em> is an object's method accepting the property name and the property value (a <code>String</code> or a
@@ -225,6 +237,11 @@ public class P3 implements PropertiesParsingListener
 	private static final String METHOD_NAME__DIRECTIVES_PROCESSOR = "executeProgram";
 
 	/**
+	 * Map for storing objects declared in the directives.
+	 */
+	private final Map<String, Object> myContext = new HashMap<String, Object>();
+
+	/**
 	 * Rule specifications for processing multiple line properties.
 	 */
 	private final List<RuleSpec> myProcessorRuleSpecsForMultipleLineProperty = new ArrayList<P3.RuleSpec>();
@@ -269,6 +286,48 @@ public class P3 implements PropertiesParsingListener
 		{
 			throw new RuntimeException(_exception);
 		}
+	}
+
+	@Override
+	public void clear()
+	{
+		// Silently ignore
+	}
+
+	@Override
+	public boolean containsKey(Object key)
+	{
+		return getContext().containsKey(key);
+	}
+
+	@Override
+	public boolean containsValue(Object value)
+	{
+		return getContext().containsValue(value);
+	}
+
+	@Override
+	public Set<java.util.Map.Entry<String, Object>> entrySet()
+	{
+		return new HashSet<Map.Entry<String, Object>>(getContext().entrySet());
+	}
+
+	@Override
+	public Object get(Object key)
+	{
+		return getContext().get(key);
+	}
+
+	@Override
+	public boolean isEmpty()
+	{
+		return getContext().isEmpty();
+	}
+
+	@Override
+	public Set<String> keySet()
+	{
+		return getContext().keySet();
 	}
 
 	/*
@@ -317,6 +376,38 @@ public class P3 implements PropertiesParsingListener
 		}
 	}
 
+	@Override
+	public Object put(String key, Object value)
+	{
+		// Silently ignore
+		return null;
+	}
+
+	@Override
+	public void putAll(Map<? extends String, ? extends Object> m)
+	{
+		// Silently ignore
+	}
+
+	@Override
+	public Object remove(Object key)
+	{
+		// Silently ignore
+		return null;
+	}
+
+	@Override
+	public int size()
+	{
+		return getContext().size();
+	}
+
+	@Override
+	public Collection<Object> values()
+	{
+		return getContext().values();
+	}
+
 	/**
 	 * The processor for extracting directives.
 	 * 
@@ -327,7 +418,6 @@ public class P3 implements PropertiesParsingListener
 	 * @throws Exception
 	 *             when there is a problem.
 	 */
-	@SuppressWarnings("unused")
 	private void executeProgram(String name, String source) throws Exception
 	{
 		List<Statement> _directives = executeProgram__compile(source);
@@ -348,6 +438,7 @@ public class P3 implements PropertiesParsingListener
 	 * @throws Exception
 	 *             when there is a problem.
 	 */
+	@SuppressWarnings("unused")
 	private void executeProgram(String name, String[] source) throws Exception
 	{
 		String _singleStringSource = executeProgram__makeSingleStringSource(source);
@@ -397,6 +488,11 @@ public class P3 implements PropertiesParsingListener
 			return _node;
 		}
 		throw new IllegalStateException("No node found for '" + source + "'");
+	}
+
+	private Map<String, Object> getContext()
+	{
+		return myContext;
 	}
 
 	private List<RuleSpec> getProcessorRuleSpecsForMultipleLineProperty()
