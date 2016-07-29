@@ -115,8 +115,6 @@ import com.sporniket.scripting.sslpoi.vess.VessNode;
  */
 public class P3 implements PropertiesParsingListener, Map<String, Object>
 {
-	private static final String EVENT__ON_SINGLE_LINE_PROPERTY_PARSED = "onSingleLinePropertyParsed";
-
 	/**
 	 * A <em>processor</em> is an object's method accepting the property name and the property value (a <code>String</code> or a
 	 * <code>String[]</code>) .
@@ -244,6 +242,8 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 	}
 
 	public static final String DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES = "__DIRECTIVES__";
+
+	private static final String EVENT__ON_SINGLE_LINE_PROPERTY_PARSED = "onSingleLinePropertyParsed";
 
 	private static final String METHOD_NAME__DIRECTIVES_PROCESSOR = "executeProgram";
 
@@ -435,55 +435,7 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 		if (!_directives.isEmpty())
 		{
 			// FIXME implement the scanning of each statement to build the ruleset
-			// Scan the statement list and apply valid statement. Unvalid or unknown statement will be ignored.
-			for (Statement _directive : _directives)
-			{
-				if (_directive instanceof StatementDefineAs)
-				{
-					StatementDefineAs _define = (StatementDefineAs) _directive;
-					// validity check
-					PartialIdentifier _identifier = _define.getIdentifier();
-					if (InitialisationMode.NEW == _define.getInitialisationMode() && !_identifier.isArray())
-					{
-						Class<?> _class = Class.forName(_identifier.getClassName());
-						getContext().put(_identifier.getIdentifier(), _class.newInstance());
-					}
-				}
-				else if (_directive instanceof StatementOn)
-				{
-					StatementOn _on = (StatementOn) _directive;
-					// validity Check
-					if (EVENT__ON_SINGLE_LINE_PROPERTY_PARSED.equals(_on.getEventName()))
-					{
-						List<RuleSpec> _target = getProcessorRuleSpecsForSingleLineProperty();
-						for (Statement _statement : _on.getStatements())
-						{
-							if (_statement instanceof StatementIf)
-							{
-								StatementIf _if = (StatementIf) _statement;
-								for (StatementAlternative _alternative : _if.getAlternatives())
-								{
-									PartialExpressionLogical _test = _alternative.getTest();
-									switch (_test.getOperator())
-									{
-										case IS:
-											PartialExpression _rightExpression = _test.getRightExpression();
-											if (_rightExpression instanceof PartialExpressionLiteralString)
-											{
-												PartialExpressionLiteralString _nameToMatch = (PartialExpressionLiteralString) _rightExpression;
-												PropertyNameMatcher _matcher = new PropertyNameMatcherExactMatch(
-														_nameToMatch.getValue());
-												// FIXME PROCESS CALL LIST.
-											}
-										case IS_LIKE:
-											throw new Exception("not implemented yet !");
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			executeProgram__parseDirectives(_directives);
 		}
 		throw new Exception("not implemented yet !");
 	}
@@ -534,6 +486,76 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 			_result.append(_line);
 		}
 		return _result.toString();
+	}
+
+	private void executeProgram__parseDirectives(List<Statement> directives) throws ClassNotFoundException, InstantiationException,
+			IllegalAccessException, Exception
+	{
+		// Scan the statement list and apply valid statement. Unvalid or unknown statement will be ignored.
+		for (Statement _directive : directives)
+		{
+			if (_directive instanceof StatementDefineAs)
+			{
+				executeProgram__parseDirectives__process((StatementDefineAs) _directive);
+			}
+			else if (_directive instanceof StatementOn)
+			{
+				executeProgram__parseDirectives__process((StatementOn) _directive);
+			}
+		}
+	}
+
+	private void executeProgram__parseDirectives__process(StatementDefineAs directive) throws ClassNotFoundException,
+			InstantiationException, IllegalAccessException
+	{
+		PartialIdentifier _identifier = directive.getIdentifier();
+		if (InitialisationMode.NEW == directive.getInitialisationMode() && !_identifier.isArray())
+		{
+			Class<?> _class = Class.forName(_identifier.getClassName());
+			getContext().put(_identifier.getIdentifier(), _class.newInstance());
+		}
+	}
+
+	private void executeProgram__parseDirectives__process(StatementOn directive) throws Exception
+	{
+		List<RuleSpec> _target = null;
+		switch (directive.getEventName())
+		{
+			case EVENT__ON_SINGLE_LINE_PROPERTY_PARSED:
+				_target = getProcessorRuleSpecsForSingleLineProperty();
+				break;
+		}
+		if (null != _target)
+		{
+			for (Statement _statement : directive.getStatements())
+			{
+				if (_statement instanceof StatementIf)
+				{
+					executeProgram__parseDirectives__processRuleset((StatementIf) _statement, _target);
+				}
+			}
+		}
+	}
+
+	private void executeProgram__parseDirectives__processRuleset(StatementIf directive, List<RuleSpec> target) throws Exception
+	{
+		for (StatementAlternative _alternative : directive.getAlternatives())
+		{
+			PartialExpressionLogical _test = _alternative.getTest();
+			switch (_test.getOperator())
+			{
+				case IS:
+					PartialExpression _rightExpression = _test.getRightExpression();
+					if (_rightExpression instanceof PartialExpressionLiteralString)
+					{
+						PartialExpressionLiteralString _nameToMatch = (PartialExpressionLiteralString) _rightExpression;
+						PropertyNameMatcher _matcher = new PropertyNameMatcherExactMatch(_nameToMatch.getValue());
+						// FIXME PROCESS CALL LIST.
+					}
+				case IS_LIKE:
+					throw new Exception("not implemented yet !");
+			}
+		}
 	}
 
 	private VessNode executeProgram__parseSource(String source, AnalyzerSyntaxic parser) throws Exception
