@@ -29,6 +29,7 @@ import com.sporniket.scripting.sslpoi.mass.PartialExpressionLogical;
 import com.sporniket.scripting.sslpoi.mass.PartialIdentifier;
 import com.sporniket.scripting.sslpoi.mass.Statement;
 import com.sporniket.scripting.sslpoi.mass.StatementAlternative;
+import com.sporniket.scripting.sslpoi.mass.StatementCall;
 import com.sporniket.scripting.sslpoi.mass.StatementDefineAs;
 import com.sporniket.scripting.sslpoi.mass.StatementFromNode;
 import com.sporniket.scripting.sslpoi.mass.StatementIf;
@@ -54,7 +55,7 @@ import com.sporniket.scripting.sslpoi.vess.VessNode;
  * define foo as new com.foo.Foo
  * define bar as new com.foo.Bar
  * 
- * on onSingleLinePropertyParsed with a String named name, a String named value
+ * on singleLinePropertyParsed with a String named name, a String named value
  *     if name is like "foo\\..*"
  *         call processFoo from foo using name as name, value as value
  *     else if name is like "foo2\\..*"
@@ -64,7 +65,7 @@ import com.sporniket.scripting.sslpoi.vess.VessNode;
  *     endif
  * endon
  * 
- * on onMultipleLinePropertyParsed with a String named name, a String[] named value
+ * on multipleLinePropertyParsed with a String named name, a String[] named value
  *     if name is "bar"
  *         call processBar from bar using name as name, value as value
  *         call process from foo using name as name, value as value
@@ -243,7 +244,9 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 
 	public static final String DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES = "__DIRECTIVES__";
 
-	private static final String EVENT__ON_SINGLE_LINE_PROPERTY_PARSED = "onSingleLinePropertyParsed";
+	private static final String EVENT__ON_MULTIPLE_LINE_PROPERTY_PARSED = "multipleLinePropertyParsed";
+
+	private static final String EVENT__ON_SINGLE_LINE_PROPERTY_PARSED = "singleLinePropertyParsed";
 
 	private static final String METHOD_NAME__DIRECTIVES_PROCESSOR = "executeProgram";
 
@@ -434,7 +437,6 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 		List<Statement> _directives = executeProgram__compile(source);
 		if (!_directives.isEmpty())
 		{
-			// FIXME implement the scanning of each statement to build the ruleset
 			executeProgram__parseDirectives(_directives);
 		}
 		throw new Exception("not implemented yet !");
@@ -519,10 +521,16 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 	private void executeProgram__parseDirectives__process(StatementOn directive) throws Exception
 	{
 		List<RuleSpec> _target = null;
+		Class<?> _valueType = null;
 		switch (directive.getEventName())
 		{
 			case EVENT__ON_SINGLE_LINE_PROPERTY_PARSED:
 				_target = getProcessorRuleSpecsForSingleLineProperty();
+				_valueType = String.class;
+				break;
+			case EVENT__ON_MULTIPLE_LINE_PROPERTY_PARSED:
+				_target = getProcessorRuleSpecsForMultipleLineProperty();
+				_valueType = String[].class;
 				break;
 		}
 		if (null != _target)
@@ -531,30 +539,84 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 			{
 				if (_statement instanceof StatementIf)
 				{
-					executeProgram__parseDirectives__processRuleset((StatementIf) _statement, _target);
+					executeProgram__parseDirectives__processRuleset((StatementIf) _statement, _target, _valueType);
 				}
 			}
 		}
 	}
 
-	private void executeProgram__parseDirectives__processRuleset(StatementIf directive, List<RuleSpec> target) throws Exception
+	private void executeProgram__parseDirectives__processRuleset(StatementIf directive, List<RuleSpec> target, Class<?> valueType)
+			throws Exception
 	{
 		for (StatementAlternative _alternative : directive.getAlternatives())
 		{
-			PartialExpressionLogical _test = _alternative.getTest();
-			switch (_test.getOperator())
+			switch (_alternative.getTest().getOperator())
 			{
 				case IS:
-					PartialExpression _rightExpression = _test.getRightExpression();
-					if (_rightExpression instanceof PartialExpressionLiteralString)
-					{
-						PartialExpressionLiteralString _nameToMatch = (PartialExpressionLiteralString) _rightExpression;
-						PropertyNameMatcher _matcher = new PropertyNameMatcherExactMatch(_nameToMatch.getValue());
-						// FIXME PROCESS CALL LIST.
-					}
+					executeProgram__parseDirectives__processRuleset__matchExact(_alternative, valueType, target);
+					break;
 				case IS_LIKE:
-					throw new Exception("not implemented yet !");
+					executeProgram__parseDirectives__processRuleset__matchPattern(_alternative, valueType, target);
+					break;
 			}
+		}
+	}
+
+	private void executeProgram__parseDirectives__processRuleset__addProcessor(StatementCall directive, Class<?> valueType,
+			List<ProcessorSpec> target) throws NoSuchMethodException
+	{
+		List<String> _methodAccessor = directive.getMethodAccessor();
+		if (_methodAccessor.size() == 2)
+		{
+			String _holderName = _methodAccessor.get(0);
+			if (getContext().containsKey(_holderName))
+			{
+				Object _holder = getContext().get(_holderName);
+				Method _processor = _holder.getClass().getMethod(_methodAccessor.get(1), String.class, valueType);
+				target.add(new ProcessorSpec(_holder, _processor));
+			}
+		}
+	}
+
+	private List<ProcessorSpec> executeProgram__parseDirectives__processRuleset__listProcessors(
+			List<Statement> directives, Class<?> valueType) throws NoSuchMethodException
+	{
+		List<ProcessorSpec> _processors = new ArrayList<P3.ProcessorSpec>(directives.size());
+		for (Statement _directive : directives)
+		{
+			if (_directive instanceof StatementCall)
+			{
+				executeProgram__parseDirectives__processRuleset__addProcessor((StatementCall) _directive, valueType, _processors);
+			}
+		}
+		return _processors;
+	}
+
+	private void executeProgram__parseDirectives__processRuleset__matchExact(StatementAlternative rule, Class<?> valueType,
+			List<RuleSpec> target) throws NoSuchMethodException
+	{
+		PartialExpressionLogical _test = rule.getTest();
+		PartialExpression _rightExpression = _test.getRightExpression();
+		if (_rightExpression instanceof PartialExpressionLiteralString)
+		{
+			PartialExpressionLiteralString _nameToMatch = (PartialExpressionLiteralString) _rightExpression;
+			PropertyNameMatcher _matcher = new PropertyNameMatcherExactMatch(_nameToMatch.getValue());
+			List<ProcessorSpec> _processors = executeProgram__parseDirectives__processRuleset__listProcessors(rule.getStatements(), valueType);
+			target.add(new RuleSpec(_matcher, _processors));
+		}
+	}
+
+	private void executeProgram__parseDirectives__processRuleset__matchPattern(StatementAlternative rule, Class<?> valueType,
+			List<RuleSpec> target) throws NoSuchMethodException
+	{
+		PartialExpressionLogical _test = rule.getTest();
+		PartialExpression _rightExpression = _test.getRightExpression();
+		if (_rightExpression instanceof PartialExpressionLiteralString)
+		{
+			PartialExpressionLiteralString _nameToMatch = (PartialExpressionLiteralString) _rightExpression;
+			PropertyNameMatcher _matcher = new PropertyNameMatcherLike(_nameToMatch.getValue());
+			List<ProcessorSpec> _processors = executeProgram__parseDirectives__processRuleset__listProcessors(rule.getStatements(), valueType);
+			target.add(new RuleSpec(_matcher, _processors));
 		}
 	}
 
