@@ -251,15 +251,25 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 	private static final String METHOD_NAME__DIRECTIVES_PROCESSOR = "executeProgram";
 
 	/**
+	 * Internal flag, <code>true</code> when the parsing of directives occurred once, prevent the parsing of new directives unless #isAllowingOverride is <code>true</code>.
+	 */
+	private boolean myAllowedOverrideRequired = false ;
+
+	/**
+	 * Manually set to <code>true</code> to allow several parsing of the directive, thus allowing adding rulesets.
+	 */
+	private boolean myAllowingOverride = false ;
+
+	/**
 	 * Map for storing objects declared in the directives.
 	 */
 	private final Map<String, Object> myContext = new HashMap<String, Object>();
-
+	
 	/**
 	 * Rule specifications for processing multiple line properties.
 	 */
 	private final List<RuleSpec> myProcessorRuleSpecsForMultipleLineProperty = new ArrayList<P3.RuleSpec>();
-
+	
 	/**
 	 * Rule specifications for processing single line properties.
 	 */
@@ -330,6 +340,11 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 	public Object get(Object key)
 	{
 		return getContext().get(key);
+	}
+
+	public boolean isAllowingOverride()
+	{
+		return myAllowingOverride;
 	}
 
 	@Override
@@ -410,6 +425,11 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 		return null;
 	}
 
+	public void setAllowingOverride(boolean allowingOverride)
+	{
+		myAllowingOverride = allowingOverride;
+	}
+
 	@Override
 	public int size()
 	{
@@ -435,11 +455,12 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 	private void executeProgram(String name, String source) throws Exception
 	{
 		List<Statement> _directives = executeProgram__compile(source);
-		if (!_directives.isEmpty())
+		boolean _canProceed = !isAllowedOverrideRequired() || isAllowingOverride() ;
+		if (_canProceed && !_directives.isEmpty())
 		{
 			executeProgram__parseDirectives(_directives);
+			setAllowedOverrideRequired(true);
 		}
-		throw new Exception("not implemented yet !");
 	}
 
 	/**
@@ -649,4 +670,13 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 		return myProcessorRuleSpecsForSingleLineProperty;
 	}
 
+	private boolean isAllowedOverrideRequired()
+	{
+		return myAllowedOverrideRequired;
+	}
+
+	private void setAllowedOverrideRequired(boolean allowedOverrideRequired)
+	{
+		myAllowedOverrideRequired = allowedOverrideRequired;
+	}
 }
