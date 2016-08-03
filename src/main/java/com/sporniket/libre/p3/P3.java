@@ -251,25 +251,26 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 	private static final String METHOD_NAME__DIRECTIVES_PROCESSOR = "executeProgram";
 
 	/**
-	 * Internal flag, <code>true</code> when the parsing of directives occurred once, prevent the parsing of new directives unless #isAllowingOverride is <code>true</code>.
+	 * Internal flag, <code>true</code> when the parsing of directives occurred once, prevent the parsing of new directives unless
+	 * #isAllowingOverride is <code>true</code>.
 	 */
-	private boolean myAllowedOverrideRequired = false ;
+	private boolean myAllowedOverrideRequired = false;
 
 	/**
 	 * Manually set to <code>true</code> to allow several parsing of the directive, thus allowing adding rulesets.
 	 */
-	private boolean myAllowingOverride = false ;
+	private boolean myAllowingOverride = false;
 
 	/**
 	 * Map for storing objects declared in the directives.
 	 */
 	private final Map<String, Object> myContext = new HashMap<String, Object>();
-	
+
 	/**
 	 * Rule specifications for processing multiple line properties.
 	 */
 	private final List<RuleSpec> myProcessorRuleSpecsForMultipleLineProperty = new ArrayList<P3.RuleSpec>();
-	
+
 	/**
 	 * Rule specifications for processing single line properties.
 	 */
@@ -294,14 +295,16 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 
 		try
 		{
-			Method _processorSingleLineProperty = this.getClass().getMethod(METHOD_NAME__DIRECTIVES_PROCESSOR, String.class,
-					String.class);
+			Method _processorSingleLineProperty = this.getClass().getDeclaredMethod(METHOD_NAME__DIRECTIVES_PROCESSOR,
+					String.class, String.class);
+			_processorSingleLineProperty.setAccessible(true);
 			ProcessorSpec _processorSpecSingleLineProperty = new ProcessorSpec(this, _processorSingleLineProperty);
 			RuleSpec _ruleSpecSingleLineProperty = new RuleSpec(_matcher, _processorSpecSingleLineProperty);
 			getProcessorRuleSpecsForSingleLineProperty().add(_ruleSpecSingleLineProperty);
 
-			Method _processorMultipleLineProperty = this.getClass().getMethod(METHOD_NAME__DIRECTIVES_PROCESSOR, String.class,
-					String[].class);
+			Method _processorMultipleLineProperty = this.getClass().getDeclaredMethod(METHOD_NAME__DIRECTIVES_PROCESSOR,
+					String.class, String[].class);
+			_processorMultipleLineProperty.setAccessible(true);
 			ProcessorSpec _processorSpecMultipleLineProperty = new ProcessorSpec(this, _processorMultipleLineProperty);
 			RuleSpec _ruleSpecMultipleLineProperty = new RuleSpec(_matcher, _processorSpecMultipleLineProperty);
 			getProcessorRuleSpecsForMultipleLineProperty().add(_ruleSpecMultipleLineProperty);
@@ -455,7 +458,7 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 	private void executeProgram(String name, String source) throws Exception
 	{
 		List<Statement> _directives = executeProgram__compile(source);
-		boolean _canProceed = !isAllowedOverrideRequired() || isAllowingOverride() ;
+		boolean _canProceed = !isAllowedOverrideRequired() || isAllowingOverride();
 		if (_canProceed && !_directives.isEmpty())
 		{
 			executeProgram__parseDirectives(_directives);
@@ -599,8 +602,8 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 		}
 	}
 
-	private List<ProcessorSpec> executeProgram__parseDirectives__processRuleset__listProcessors(
-			List<Statement> directives, Class<?> valueType) throws NoSuchMethodException
+	private List<ProcessorSpec> executeProgram__parseDirectives__processRuleset__listProcessors(List<Statement> directives,
+			Class<?> valueType) throws NoSuchMethodException
 	{
 		List<ProcessorSpec> _processors = new ArrayList<P3.ProcessorSpec>(directives.size());
 		for (Statement _directive : directives)
@@ -622,7 +625,8 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 		{
 			PartialExpressionLiteralString _nameToMatch = (PartialExpressionLiteralString) _rightExpression;
 			PropertyNameMatcher _matcher = new PropertyNameMatcherExactMatch(_nameToMatch.getValue());
-			List<ProcessorSpec> _processors = executeProgram__parseDirectives__processRuleset__listProcessors(rule.getStatements(), valueType);
+			List<ProcessorSpec> _processors = executeProgram__parseDirectives__processRuleset__listProcessors(rule.getStatements(),
+					valueType);
 			target.add(new RuleSpec(_matcher, _processors));
 		}
 	}
@@ -636,7 +640,8 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 		{
 			PartialExpressionLiteralString _nameToMatch = (PartialExpressionLiteralString) _rightExpression;
 			PropertyNameMatcher _matcher = new PropertyNameMatcherLike(_nameToMatch.getValue());
-			List<ProcessorSpec> _processors = executeProgram__parseDirectives__processRuleset__listProcessors(rule.getStatements(), valueType);
+			List<ProcessorSpec> _processors = executeProgram__parseDirectives__processRuleset__listProcessors(rule.getStatements(),
+					valueType);
 			target.add(new RuleSpec(_matcher, _processors));
 		}
 	}
