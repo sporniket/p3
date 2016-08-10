@@ -16,10 +16,10 @@
 		<version.maven-release-plugin>2.5.2</version.maven-release-plugin>
 
 		<!-- sporniket core version -->
-		<version.sporniket.core>15.09.00</version.sporniket.core>
+		<version.sporniket.core>16.08.00</version.sporniket.core>
 
 		<!-- sporniket sslpoi version -->
-		<version.sporniket.sslpoi>0.1.0</version.sporniket.sslpoi>
+		<version.sporniket.sslpoi>0.1.1</version.sporniket.sslpoi>
 	</properties>
 
 	<name>P3 : Programmable Properties Processor</name>
