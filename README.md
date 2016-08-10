@@ -62,4 +62,4 @@ Add the following dependencies to your project.
 
 ##5. Miscellanous
 ### Report issues
-Use the issue reporting system at the [P3 project page](https://github.com/sporniket/p3)
+Use the issue reporting system at the [project page](https://github.com/sporniket/p3)
