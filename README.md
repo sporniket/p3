@@ -1,9 +1,9 @@
 # P3, the Programmable Properties Processor
 
-[WARNING] Please read carefully this note before using this project. It contains important facts for using this project/library/...
-This software is delivered as is and do not garantees bla bla bla.
+> [WARNING] Please read carefully this note before using this project. It contains important facts for using this project.
 
 Content
+
 1. What is **P3, the Programmable Properties Processor**, and when to use it ?
 2. What should you know before using **P3, the Programmable Properties Processor** ?
 3. How to use **P3, the Programmable Properties Processor** ?
