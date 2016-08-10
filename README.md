@@ -10,12 +10,10 @@ Content
 4. Known issues
 5. Miscellanous
 
+
 ##1. What is **P3, the Programmable Properties Processor**, and when to use it ?
 **P3, the Programmable Properties Processor** listen for specific event related with properties file parsing. When recognising a specific property name, it parse the 
 value to create other processors to call, and learn which processor to call when a new property event is received.
-
-This mechanism is based on the `PropertiesParsingListener` class defined in the [sporniket-core](https://github.com/sporniket/core) project, and the description 
-language is the [Sporny Script Language](https://github.com/sporniket/sslpoi).
 
 
 ###Licence
@@ -48,6 +46,7 @@ To get the latest available code, one must clone the git repository, build and i
 	cd p3
 	mvn install
 
+
 ###Maven
 Add the following dependencies to your project.
 
@@ -57,9 +56,12 @@ Add the following dependencies to your project.
 	    <version><!-- the version to use --></version>
 	</dependency>
 
+
 ##4. Known issues
 ...
 
+
 ##5. Miscellanous
+
 ### Report issues
 Use the issue reporting system at the [project page](https://github.com/sporniket/p3)
