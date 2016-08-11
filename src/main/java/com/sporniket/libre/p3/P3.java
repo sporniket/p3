@@ -45,8 +45,8 @@ import com.sporniket.scripting.sslpoi.vess.VessNode;
  * 
  * <p>
  * To setup this dispatching, this listener wait for a specific property (by default,
- * <code>{@value #DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES}</code>) containing a list of
- * directives written using the <a href="http://github.com/sporniket/sslpoi">Sporny Scripting Language</a>.
+ * <code>{@value #DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES}</code>) containing a list of directives written using the <a
+ * href="http://github.com/sporniket/sslpoi">Sporny Scripting Language</a>.
  * 
  * <p>
  * A typical script will looks like :
@@ -241,7 +241,6 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 
 		private final List<ProcessorSpec> myProcessors;
 
-		@SuppressWarnings("unused")
 		public RuleSpec(PropertyNameMatcher matcher, List<ProcessorSpec> processors)
 		{
 			myMatcher = matcher;
@@ -313,6 +312,7 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 	 * Create a P3 looking for directives from the specified property.
 	 * 
 	 * @param directivesName
+	 *            the name of the property that contains directives.
 	 */
 	public P3(String directivesName)
 	{
