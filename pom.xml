@@ -7,11 +7,11 @@
 
 	<properties>
 		<url.base>https://github.com/sporniket/p3</url.base>
-		<version.jdk>1.7</version.jdk>
+		<version.jdk>1.8</version.jdk>
 
 		<!-- maven plugins version -->
-		<version.maven-compiler-plugin>3.2</version.maven-compiler-plugin>
-		<version.maven-source-plugin>2.4</version.maven-source-plugin>
+		<version.maven-compiler-plugin>3.5.1</version.maven-compiler-plugin>
+		<version.maven-source-plugin>3.0.1</version.maven-source-plugin>
 		<version.maven-javadoc-plugin>2.10.4</version.maven-javadoc-plugin>
 		<version.maven-release-plugin>2.5.2</version.maven-release-plugin>
 
