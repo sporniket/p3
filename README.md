@@ -22,10 +22,10 @@ value to create other processors to call, and learn which processor to call when
  option) any later version.
 
  **P3, the Programmable Properties Processor** is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for
+ even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  more details.
  
- You should have received a copy of the GNU Lesser General Public License along with **P3, the Programmable Properties Processor**.
+ You should have received a copy of the GNU General Public License along with **P3, the Programmable Properties Processor**.
  If not, see http://www.gnu.org/licenses/ .
 
 
