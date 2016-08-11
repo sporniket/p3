@@ -40,12 +40,12 @@ import com.sporniket.scripting.sslpoi.vess.VessNode;
 
 /**
  * P3 (Programmable Property Processor) is a {@link PropertiesParsingListener} that will dispatch received
- * {@link SingleLinePropertyParsedEvent} and {@link MultipleLinePropertyParsedEvent} to other {@link PropertiesParsingListener}
- * according to the property name of the event.
+ * {@link SingleLinePropertyParsedEvent} and {@link MultipleLinePropertyParsedEvent} to other processings according to the property
+ * name of the event.
  * 
  * <p>
  * To setup this dispatching, this listener wait for a specific property (by default,
- * <code>{@link #DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES}={@value #DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES}</code>) containing a list of
+ * <code>{@value #DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES}</code>) containing a list of
  * directives written using the <a href="http://github.com/sporniket/sslpoi">Sporny Scripting Language</a>.
  * 
  * <p>
@@ -111,8 +111,33 @@ import com.sporniket.scripting.sslpoi.vess.VessNode;
  * P3 is a <strong>read-only</strong> {@link Map}, objects created in the directives are accessible using the identifier as a key,
  * e.g <code>_p3.get("foo")</code>.
  * 
- * @author dsporn
- *
+ * <p>
+ * &copy; Copyright 2016 David Sporn
+ * </p>
+ * <hr>
+ * 
+ * <p>
+ * This file is part of <i>P3, the Programmable Properties Processor</i>.
+ * 
+ * <p>
+ * <i>P3, the Programmable Properties Processor</i> is free software: you can redistribute it and/or modify it under the terms of
+ * the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option)
+ * any later version.
+ * 
+ * <p>
+ * <i>P3, the Programmable Properties Processor</i> is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ * 
+ * <p>
+ * You should have received a copy of the GNU General Public License along with <i>P3, the Programmable Properties Processor</i>. If
+ * not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
+ * 
+ * <hr>
+ * 
+ * @author David SPORN
+ * @version 1
+ * @since 1
  */
 public class P3 implements PropertiesParsingListener, Map<String, Object>
 {
