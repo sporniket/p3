@@ -39,6 +39,7 @@ value to create other processors to call, and learn which processor to call when
 
 ##3. How to use **P3, the Programmable Properties Processor** ?
 
+
 ###From source
 To get the latest available code, one must clone the git repository, build and install to the maven local repository.
 
@@ -55,6 +56,9 @@ Add the following dependencies to your project.
 	    <artifactId>p3</artifactId>
 	    <version><!-- the version to use --></version>
 	</dependency>
+
+###Directions and sample code
+Read the javadoc of the P3 class and look at the test code for sample code.
 
 
 ##4. Known issues
