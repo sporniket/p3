@@ -16,8 +16,34 @@ import java.lang.reflect.Method;
  * <p>
  * Subclasses are expected to implement the #getObject() by returning the internal object to fill with property value.
  * 
- * @author dsporn
- *
+ * 
+ * <p>
+ * &copy; Copyright 2016 David Sporn
+ * </p>
+ * <hr>
+ * 
+ * <p>
+ * This file is part of <i>P3, the Programmable Properties Processor</i>.
+ * 
+ * <p>
+ * <i>P3, the Programmable Properties Processor</i> is free software: you can redistribute it and/or modify it under the terms of
+ * the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option)
+ * any later version.
+ * 
+ * <p>
+ * <i>P3, the Programmable Properties Processor</i> is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ * 
+ * <p>
+ * You should have received a copy of the GNU General Public License along with <i>P3, the Programmable Properties Processor</i>. If
+ * not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
+ * 
+ * <hr>
+ * 
+ * @author David SPORN
+ * @version 1
+ * @since 2
  */
 public abstract class WrappedObjectMapperProcessor
 {
@@ -25,7 +51,7 @@ public abstract class WrappedObjectMapperProcessor
 
 	private static final String PREFIX__SETTER = "set";
 
-	private static final String CHAR__DOT = ".";
+	private static final String REGEXP__CHAR_DOT = "\\.";
 
 	protected abstract Object getObject();
 
@@ -61,7 +87,7 @@ public abstract class WrappedObjectMapperProcessor
 	private void processGeneric(String name, Object value) throws NoSuchMethodException, SecurityException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException
 	{
-		String[] _accessStack = name.split(CHAR__DOT);
+		String[] _accessStack = name.split(REGEXP__CHAR_DOT);
 		if (0 == _accessStack.length)
 		{
 			throw new IllegalArgumentException(name);
