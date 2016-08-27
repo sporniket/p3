@@ -53,8 +53,6 @@ public abstract class WrappedObjectMapperProcessor
 
 	private static final String REGEXP__CHAR_DOT = "\\.";
 
-	protected abstract Object getObject();
-
 	public void process(String name, String value) throws NoSuchMethodException, SecurityException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException
 	{
@@ -65,6 +63,36 @@ public abstract class WrappedObjectMapperProcessor
 			IllegalArgumentException, InvocationTargetException
 	{
 		processGeneric(name, value);
+	}
+
+	protected abstract Object getObject();
+
+	/**
+	 * Compute the getter name.
+	 * 
+	 * @param name
+	 *            the name of the property to read.
+	 * @return the getter name.
+	 */
+	private String computeGetterName(String name)
+	{
+		StringBuilder _result = new StringBuilder().append(PREFIX__GETTER);
+		_result.append(Character.toUpperCase(name.charAt(0))).append(name.substring(1));
+		return _result.toString();
+	}
+
+	/**
+	 * Compute the setter name.
+	 * 
+	 * @param name
+	 *            the name of the property to read.
+	 * @return the setter name.
+	 */
+	private String computeSetterName(String name)
+	{
+		StringBuilder _result = new StringBuilder().append(PREFIX__SETTER);
+		_result.append(Character.toUpperCase(name.charAt(0))).append(name.substring(1));
+		return _result.toString();
 	}
 
 	/**
@@ -103,33 +131,5 @@ public abstract class WrappedObjectMapperProcessor
 		String _setterName = computeSetterName(_accessStack[_setterIndex]);
 		Method _setter = _toChange.getClass().getMethod(_setterName, value.getClass());
 		_setter.invoke(_toChange, value);
-	}
-
-	/**
-	 * Compute the getter name.
-	 * 
-	 * @param name
-	 *            the name of the property to read.
-	 * @return the getter name.
-	 */
-	private String computeGetterName(String name)
-	{
-		StringBuilder _result = new StringBuilder().append(PREFIX__GETTER);
-		_result.append(Character.toUpperCase(name.charAt(0))).append(name.substring(1));
-		return _result.toString();
-	}
-
-	/**
-	 * Compute the setter name.
-	 * 
-	 * @param name
-	 *            the name of the property to read.
-	 * @return the setter name.
-	 */
-	private String computeSetterName(String name)
-	{
-		StringBuilder _result = new StringBuilder().append(PREFIX__SETTER);
-		_result.append(Character.toUpperCase(name.charAt(0))).append(name.substring(1));
-		return _result.toString();
 	}
 }
