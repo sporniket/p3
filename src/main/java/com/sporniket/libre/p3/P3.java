@@ -136,7 +136,7 @@ import com.sporniket.scripting.sslpoi.vess.VessNode;
  * <hr>
  * 
  * @author David SPORN
- * @version 1
+ * @version 2
  * @since 1
  */
 public class P3 implements PropertiesParsingListener, Map<String, Object>

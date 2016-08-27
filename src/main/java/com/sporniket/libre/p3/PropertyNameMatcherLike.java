@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  * <hr>
  * 
  * @author David SPORN 
- * @version 1
+ * @version 2
  * @since 1
  */
 public class PropertyNameMatcherLike implements PropertyNameMatcher

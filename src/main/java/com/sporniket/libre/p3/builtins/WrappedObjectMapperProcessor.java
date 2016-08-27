@@ -42,7 +42,7 @@ import java.lang.reflect.Method;
  * <hr>
  * 
  * @author David SPORN
- * @version 1
+ * @version 2
  * @since 2
  */
 public abstract class WrappedObjectMapperProcessor

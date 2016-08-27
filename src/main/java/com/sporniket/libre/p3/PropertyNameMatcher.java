@@ -31,7 +31,7 @@ package com.sporniket.libre.p3;
  * <hr>
  * 
  * @author David SPORN
- * @version 1
+ * @version 2
  * @since 1
  */
 interface PropertyNameMatcher
