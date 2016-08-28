@@ -359,7 +359,7 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 	}
 
 	@Override
-	public Set<java.util.Map.Entry<String, Object>> entrySet()
+	public Set<Map.Entry<String, Object>> entrySet()
 	{
 		return new HashSet<Map.Entry<String, Object>>(getContext().entrySet());
 	}
@@ -480,6 +480,7 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 	 * @throws Exception
 	 *             when there is a problem.
 	 */
+	@SuppressWarnings("PMD.UnusedFormalParameter")
 	private void executeProgram(String name, String source) throws Exception
 	{
 		List<Statement> _directives = executeProgram__compile(source);
@@ -673,8 +674,8 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 
 	private VessNode executeProgram__parseSource(String source, AnalyzerSyntaxic parser) throws Exception
 	{
-		Reader statementReader = new StringReader(source);
-		((AnalyzerLexical) parser.getScanner()).yyreset(statementReader);
+		Reader _statementReader = new StringReader(source);
+		((AnalyzerLexical) parser.getScanner()).yyreset(_statementReader);
 		final ComplexSymbol _symbol = (ComplexSymbol) parser.debug_parse();
 		Object _value = _symbol.value;
 		if (_value instanceof VessNode)
