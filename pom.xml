@@ -7,12 +7,18 @@
 
 	<properties>
 		<url.base>https://github.com/sporniket/p3</url.base>
+		<url.base.site.deploy>file://${user.home}/mvnsites</url.base.site.deploy>
 		<version.jdk>1.8</version.jdk>
 
 		<!-- maven plugins version -->
 		<version.maven-compiler-plugin>3.5.1</version.maven-compiler-plugin>
 		<version.maven-source-plugin>3.0.1</version.maven-source-plugin>
 		<version.maven-javadoc-plugin>2.10.4</version.maven-javadoc-plugin>
+		<version.maven-project-info-reports-plugin>2.6</version.maven-project-info-reports-plugin>
+		<version.maven-surefire-report-plugin>2.19.1</version.maven-surefire-report-plugin>
+		<version.maven-checkstyle-plugin>2.17</version.maven-checkstyle-plugin>
+		<version.maven-checkstyle-plugin.checkstyle-runtime>7.1</version.maven-checkstyle-plugin.checkstyle-runtime> <!-- required to use recent checkstyle -->
+		<version.maven-pmd-plugin>3.6</version.maven-pmd-plugin>
 		<version.maven-release-plugin>2.5.2</version.maven-release-plugin>
 
 		<!-- sporniket core version -->
@@ -77,7 +83,85 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-project-info-reports-plugin</artifactId>
+					<version>${version.maven-project-info-reports-plugin}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<version>${version.maven-checkstyle-plugin}</version>
+					<dependencies>
+						<dependency>
+							<groupId>com.puppycrawl.tools</groupId>
+							<artifactId>checkstyle</artifactId>
+							<version>${version.maven-checkstyle-plugin.checkstyle-runtime}</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>${version.maven-javadoc-plugin}</version>
+				<configuration>
+				</configuration>
+				<reportSets>
+					<reportSet>
+						<id>default</id>
+						<configuration>
+						</configuration>
+						<reports>
+							<report>javadoc</report>
+						</reports>
+					</reportSet>
+					<reportSet>
+						<id>aggregate</id>
+						<configuration>
+						</configuration>
+						<reports>
+							<report>aggregate</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>${version.maven-surefire-report-plugin}</version>
+				<configuration>
+					<aggregate>true</aggregate>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${version.maven-checkstyle-plugin}</version>
+				<configuration>
+					<configLocation>checkstyle-custom.xml</configLocation>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-pmd-plugin</artifactId>
+				<version>${version.maven-pmd-plugin}</version>
+				<configuration>
+					<aggregate>true</aggregate>
+					<targetJdk>${version.jdk}</targetJdk>
+					<rulesets>
+						<ruleset>pmd-custom.xml</ruleset>
+					</rulesets>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 
 	<!-- default dependencies versions for the whole project -->
 	<dependencies>
@@ -116,6 +200,11 @@
 		</license>
 	</licenses>
 	<distributionManagement>
+		<site>
+			<id>localMvnSite-${project.artifactId}</id>
+			<name>${project.name}</name>
+			<url>${url.base.site.deploy}/${project.artifactId}/${project.version}</url>
+		</site>
 		<repository>
 			<id>centralSonatype</id>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
