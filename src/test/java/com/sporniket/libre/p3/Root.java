@@ -34,18 +34,44 @@ package com.sporniket.libre.p3;
  */
 public class Root
 {
-	private Node myChild;
+	private boolean myBooleanValue ;
 
-	private String value;
+	private Node myChild;
+	
+	private float myFloatValue ;
+	
+	private int myIntValue ;
+	
+	private String myValue;
 
 	public Node getChild()
 	{
 		return myChild;
 	}
 
+	public float getFloatValue()
+	{
+		return myFloatValue;
+	}
+
+	public int getIntValue()
+	{
+		return myIntValue;
+	}
+
 	public String getValue()
 	{
-		return value;
+		return myValue;
+	}
+
+	public boolean isBooleanValue()
+	{
+		return myBooleanValue;
+	}
+
+	public void setBooleanValue(boolean booleanValue)
+	{
+		this.myBooleanValue = booleanValue;
 	}
 
 	public void setChild(Node child)
@@ -53,10 +79,20 @@ public class Root
 		myChild = child;
 	}
 
+	public void setFloatValue(float floatValue)
+	{
+		this.myFloatValue = floatValue;
+	}
+
+	public void setIntValue(int intValue)
+	{
+		this.myIntValue = intValue;
+	}
+
 	@SuppressWarnings("unused")
 	public void setValue(String value)
 	{
-		this.value = value;
+		this.myValue = value;
 	}
 
 	public Root withChild(Node child)

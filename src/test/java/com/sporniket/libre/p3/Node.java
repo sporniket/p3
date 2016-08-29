@@ -34,16 +34,40 @@ package com.sporniket.libre.p3;
  */
 public class Node
 {
-	private String[] value;
+	private double myDoubleValue ;
+	
+	private long myLongValue ;
+	
+	private String[] myValue;
+
+	public double getDoubleValue()
+	{
+		return myDoubleValue;
+	}
+
+	public long getLongValue()
+	{
+		return myLongValue;
+	}
 
 	public String[] getValue()
 	{
-		return value;
+		return myValue;
+	}
+
+	public void setDoubleValue(double doubleValue)
+	{
+		myDoubleValue = doubleValue;
+	}
+
+	public void setLongValue(long longValue)
+	{
+		myLongValue = longValue;
 	}
 
 	@SuppressWarnings("unused")
 	public void setValue(String[] value)
 	{
-		this.value = value;
+		this.myValue = value;
 	}
 }

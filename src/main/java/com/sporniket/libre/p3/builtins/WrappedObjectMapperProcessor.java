@@ -47,6 +47,30 @@ import java.lang.reflect.Method;
  */
 public abstract class WrappedObjectMapperProcessor
 {
+	private static class SetterTarget
+	{
+		private final Object myObjectToChange;
+
+		private final String mySetterName;
+
+		public SetterTarget(Object objectToChange, String setterName)
+		{
+			myObjectToChange = objectToChange;
+			mySetterName = setterName;
+		}
+
+		public Object getObjectToChange()
+		{
+			return myObjectToChange;
+		}
+
+		public String getSetterName()
+		{
+			return mySetterName;
+		}
+
+	}
+
 	private static final String PREFIX__GETTER = "get";
 
 	private static final String PREFIX__SETTER = "set";
@@ -56,13 +80,17 @@ public abstract class WrappedObjectMapperProcessor
 	public void process(String name, String value) throws NoSuchMethodException, SecurityException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException
 	{
-		processGeneric(name, value);
+		SetterTarget _target = findSetterTarget(name);
+		findAndInvokeCompatibleSetter(_target, value);
 	}
 
 	public void process(String name, String value[]) throws NoSuchMethodException, SecurityException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException
 	{
-		processGeneric(name, value);
+		SetterTarget _target = findSetterTarget(name);
+		Object _objectToChange = _target.getObjectToChange();
+		Method _setter = _objectToChange.getClass().getMethod(_target.getSetterName(), value.getClass());
+		_setter.invoke(_objectToChange, (Object) value);
 	}
 
 	protected abstract Object getObject();
@@ -96,32 +124,97 @@ public abstract class WrappedObjectMapperProcessor
 	}
 
 	/**
-	 * The generic processing, that get any field until the last one that is set with the given value.
+	 * Find the first compatible setter (conversion from String is supported) and invoke it.
 	 * 
-	 * @param name
-	 *            the property name, a dot separated list of fields.
+	 * @param target
+	 *            the object to change and setter name.
 	 * @param value
-	 * @throws NoSuchMethodException
-	 *             when a getter or setter does not exists.
-	 * @throws SecurityException
-	 *             when there is a problem.
+	 *            the value.
 	 * @throws IllegalAccessException
 	 *             when there is a problem.
-	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 *             when there is a problem.
+	 * @throws NoSuchMethodError
+	 *             when there is no compatible setter.
+	 */
+	private void findAndInvokeCompatibleSetter(SetterTarget target, String value) throws IllegalAccessException,
+			InvocationTargetException, NoSuchMethodError
+	{
+		Object _objectToChange = target.getObjectToChange();
+		Method[] _declaredMethods = _objectToChange.getClass().getDeclaredMethods();
+		String _setterName = target.getSetterName();
+		for (Method _candidate : _declaredMethods)
+		{
+			if (_candidate.getName().equals(_setterName))
+			{
+				Class<?>[] _parameterTypes = _candidate.getParameterTypes();
+				if (_parameterTypes.length != 1)
+				{
+					continue;
+				}
+				Class<?> _class = _parameterTypes[0];
+				if (_class == String.class)
+				{
+					// no conversion
+					_candidate.invoke(_objectToChange, value);
+					return;
+				}
+				else if (_class == Integer.TYPE)
+				{
+					_candidate.invoke(_objectToChange, Integer.parseInt(value));
+					return;
+				}
+				else if (_class == Long.TYPE)
+				{
+					_candidate.invoke(_objectToChange, Long.parseLong(value));
+					return;
+
+				}
+				else if (_class == Float.TYPE)
+				{
+					_candidate.invoke(_objectToChange, Float.parseFloat(value));
+					return;
+
+				}
+				else if (_class == Double.TYPE)
+				{
+					_candidate.invoke(_objectToChange, Double.parseDouble(value));
+					return;
+
+				}
+				else if (_class == Boolean.TYPE)
+				{
+					_candidate.invoke(_objectToChange, Boolean.parseBoolean(value));
+					return;
+				}
+			}
+		}
+		throw new NoSuchMethodError(_setterName);
+	}
+
+	/**
+	 * Find the object to change and the setter method name.
+	 * 
+	 * @param path
+	 *            the path to the object and setter.
+	 * @return a {@link SetterTarget} storing the object to change and the setter name.
+	 * @throws NoSuchMethodException
+	 *             when a getter does not exists.
+	 * @throws IllegalAccessException
 	 *             when there is a problem.
 	 * @throws InvocationTargetException
 	 *             when there is a problem.
 	 */
-	private void processGeneric(String name, Object value) throws NoSuchMethodException, SecurityException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException
+	private SetterTarget findSetterTarget(String path) throws NoSuchMethodException, IllegalAccessException,
+			InvocationTargetException
 	{
-		String[] _accessStack = name.split(REGEXP__CHAR_DOT);
+		String[] _accessStack = path.split(REGEXP__CHAR_DOT);
 		if (0 == _accessStack.length)
 		{
-			throw new IllegalArgumentException(name);
+			throw new IllegalArgumentException(path);
 		}
-		Object _toChange = getObject();
 		int _setterIndex = _accessStack.length - 1;
+		Object _toChange = getObject();
 		for (int _index = 0; _index < _setterIndex; _index++)
 		{
 			String _getterName = computeGetterName(_accessStack[_index]);
@@ -129,7 +222,7 @@ public abstract class WrappedObjectMapperProcessor
 			_toChange = _getter.invoke(_toChange, (Object[]) null);
 		}
 		String _setterName = computeSetterName(_accessStack[_setterIndex]);
-		Method _setter = _toChange.getClass().getMethod(_setterName, value.getClass());
-		_setter.invoke(_toChange, value);
+		SetterTarget _target = new SetterTarget(_toChange, _setterName);
+		return _target;
 	}
 }

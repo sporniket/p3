@@ -65,16 +65,26 @@ public class TestWrappedObjectMapperProcessor
 	{
 		P3 _processor = TestUtils.createP3(DIRECTIVES);
 		_processor.onSingleLinePropertyParsed(new SingleLinePropertyParsedEvent("value", "foo"));
+		_processor.onSingleLinePropertyParsed(new SingleLinePropertyParsedEvent("intValue", "2"));
+		_processor.onSingleLinePropertyParsed(new SingleLinePropertyParsedEvent("floatValue", "1.2"));
+		_processor.onSingleLinePropertyParsed(new SingleLinePropertyParsedEvent("booleanValue", "true"));
 		String[] _value =
 		{
 				"a", "b"
 		};
 		_processor.onMultipleLinePropertyParsed(new MultipleLinePropertyParsedEvent("child.value", _value));
+		_processor.onSingleLinePropertyParsed(new SingleLinePropertyParsedEvent("child.longValue", "4"));
+		_processor.onSingleLinePropertyParsed(new SingleLinePropertyParsedEvent("child.doubleValue", "3.14"));
 
 		Root _root = ((RootMapper) _processor.get("foo")).getRoot();
 		assertThat(_root.getValue(), is("foo"));
+		assertThat(_root.getIntValue(), is(2));
+		assertThat(_root.getFloatValue(), is(1.2f));
+		assertThat(_root.isBooleanValue(), is(true));
 		assertThat(_root.getChild().getValue()[0], is("a"));
 		assertThat(_root.getChild().getValue()[1], is("b"));
+		assertThat(_root.getChild().getLongValue(), is(4L));
+		assertThat(_root.getChild().getDoubleValue(), is(3.14));
 
 	}
 

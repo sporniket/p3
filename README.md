@@ -15,6 +15,11 @@ Content
 **P3, the Programmable Properties Processor** listen for specific event related with properties file parsing. When recognising a specific property name, it parse the 
 value to create other processors to call, and learn which processor to call when a new property event is received.
 
+### What's new in v3
+* The built-in processor that use the property name as an introspection path to set a value now support numeric fields.
+
+### What's new in v2
+* A built-in processor that use the property name as an introspection path to set a value.
 
 ###Licence
  **P3, the Programmable Properties Processor** is free software: you can redistribute it and/or modify it under the terms of the
