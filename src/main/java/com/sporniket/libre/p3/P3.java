@@ -263,7 +263,6 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 		{
 			return myProcessors;
 		}
-
 	}
 
 	public static final String DEFAULT_PROPERTY_NAME_FOR_DIRECTIVES = "__DIRECTIVES__";
@@ -600,14 +599,21 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 	{
 		for (StatementAlternative _alternative : directive.getAlternatives())
 		{
-			switch (_alternative.getTest().getOperator())
+			if (null == _alternative.getTest())
 			{
-				case IS:
-					executeProgram__parseDirectives__processRuleset__matchExact(_alternative, valueType, target);
-					break;
-				case IS_LIKE:
-					executeProgram__parseDirectives__processRuleset__matchPattern(_alternative, valueType, target);
-					break;
+				executeProgram__parseDirectives__processRuleset__else(_alternative, valueType, target);
+			}
+			else
+			{
+				switch (_alternative.getTest().getOperator())
+				{
+					case IS:
+						executeProgram__parseDirectives__processRuleset__matchExact(_alternative, valueType, target);
+						break;
+					case IS_LIKE:
+						executeProgram__parseDirectives__processRuleset__matchPattern(_alternative, valueType, target);
+						break;
+				}
 			}
 		}
 	}
@@ -640,6 +646,14 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 			}
 		}
 		return _processors;
+	}
+
+	private void executeProgram__parseDirectives__processRuleset__else(StatementAlternative rule, Class<?> valueType,
+			List<RuleSpec> target) throws NoSuchMethodException
+	{
+		List<ProcessorSpec> _processors = executeProgram__parseDirectives__processRuleset__listProcessors(rule.getStatements(),
+				valueType);
+		target.add(new RuleSpec(new PropertyNameMatcherAny(), _processors));
 	}
 
 	private void executeProgram__parseDirectives__processRuleset__matchExact(StatementAlternative rule, Class<?> valueType,

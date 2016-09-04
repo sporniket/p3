@@ -1,12 +1,7 @@
 package com.sporniket.libre.p3;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import com.sporniket.libre.p3.builtins.WrappedObjectMapperProcessor;
-
 /**
- * Test class.
+ * {@link PropertyNameMatcher} that returns true for any name (a catch all matcher for 'else' cases).
  * 
  * <p>
  * &copy; Copyright 2016 David Sporn
@@ -33,38 +28,16 @@ import com.sporniket.libre.p3.builtins.WrappedObjectMapperProcessor;
  * <hr>
  * 
  * @author David SPORN
- * @version 2
- * @since 2
- * @see TestWrappedObjectMapperProcessor
+ * @version 4
+ * @since 4
  */
-public class RootMapper extends WrappedObjectMapperProcessor
+public class PropertyNameMatcherAny implements PropertyNameMatcher
 {
-	private final Root myRoot = new Root().withChild(new Node());
 
-	public Root getRoot()
-	{
-		return myRoot;
-	}
-
-	public void processSpecial(String name, String value) throws MalformedURLException
-	{
-		getRoot().setSpecialProcess(new URL(value));
-	}
-
-	public void processSpecial(String name, String[] value) throws MalformedURLException
-	{
-		URL _value = null ;
-		if (value.length > 0)
-		{
-			_value = new URL(value[0]);
-		}
-		getRoot().setSpecialProcess(_value);
-	}
-	
 	@Override
-	protected Object getObject()
+	public boolean isMatching(String propertyName)
 	{
-		return getRoot();
+		return true;
 	}
 
 }

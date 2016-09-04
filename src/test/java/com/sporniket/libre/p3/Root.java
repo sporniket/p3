@@ -1,5 +1,7 @@
 package com.sporniket.libre.p3;
 
+import java.net.URL;
+
 /**
  * Test class.
  * 
@@ -42,6 +44,8 @@ public class Root
 	
 	private int myIntValue ;
 	
+	private URL mySpecialProcess ;
+	
 	private String myValue;
 
 	public Node getChild()
@@ -57,6 +61,11 @@ public class Root
 	public int getIntValue()
 	{
 		return myIntValue;
+	}
+
+	public URL getSpecialProcess()
+	{
+		return mySpecialProcess;
 	}
 
 	public String getValue()
@@ -87,6 +96,11 @@ public class Root
 	public void setIntValue(int intValue)
 	{
 		this.myIntValue = intValue;
+	}
+
+	public void setSpecialProcess(URL specialProcess)
+	{
+		mySpecialProcess = specialProcess;
 	}
 
 	@SuppressWarnings("unused")
