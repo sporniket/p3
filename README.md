@@ -16,7 +16,7 @@ Content
 value to create other processors to call, and learn which processor to call when a new property event is received.
 
 ### What's new in v4
-* Fixed : #1 .
+* Fixed : https://github.com/sporniket/p3/issues/1 .
 
 ### What's new in v3
 * The built-in processor that use the property name as an introspection path to set a value now support numeric fields.
