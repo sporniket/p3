@@ -15,6 +15,9 @@ Content
 **P3, the Programmable Properties Processor** listen for specific event related with properties file parsing. When recognising a specific property name, it parse the 
 value to create other processors to call, and learn which processor to call when a new property event is received.
 
+### What's new in v4
+* Fixed : #1 .
+
 ### What's new in v3
 * The built-in processor that use the property name as an introspection path to set a value now support numeric fields.
 
@@ -67,7 +70,8 @@ Read the javadoc of the P3 class and look at the test code for sample code.
 
 
 ##4. Known issues
-...
+
+see the [project issues](https://github.com/sporniket/p3/issues) page.
 
 
 ##5. Miscellanous
