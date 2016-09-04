@@ -247,11 +247,14 @@ public class P3 implements PropertiesParsingListener, Map<String, Object>
 			myProcessors = new ArrayList<P3.ProcessorSpec>(processors);
 		}
 
-		public RuleSpec(PropertyNameMatcher matcher, ProcessorSpec singleProcessor)
+		public RuleSpec(PropertyNameMatcher matcher, ProcessorSpec... processors)
 		{
 			myMatcher = matcher;
-			myProcessors = new ArrayList<P3.ProcessorSpec>(1);
-			myProcessors.add(singleProcessor);
+			myProcessors = new ArrayList<P3.ProcessorSpec>(processors.length);
+			for(ProcessorSpec _processor:processors)
+			{
+				myProcessors.add(_processor);
+			}
 		}
 
 		public PropertyNameMatcher getMatcher()
