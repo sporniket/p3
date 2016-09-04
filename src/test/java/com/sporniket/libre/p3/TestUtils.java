@@ -33,7 +33,7 @@ import com.sporniket.libre.io.parser.properties.MultipleLinePropertyParsedEvent;
  * <hr>
  * 
  * @author David SPORN
- * @version 2
+ * @version 4
  * @since 1
  */
 abstract class TestUtils

@@ -35,7 +35,7 @@ import java.util.Map;
  * <hr>
  * 
  * @author David SPORN
- * @version 2
+ * @version 4
  * @since 1
  */
 class PropertiesCatcher

@@ -42,7 +42,7 @@ import com.sporniket.libre.io.parser.properties.SingleLinePropertyParsedEvent;
  * <hr>
  * 
  * @author David SPORN
- * @version 2
+ * @version 4
  * @since 1
  */
 public class TestPropertyNameMatcherExactMatch

@@ -37,7 +37,7 @@ import com.sporniket.libre.p3.builtins.WrappedObjectMapperProcessor;
  * <hr>
  * 
  * @author David SPORN
- * @version 2
+ * @version 4
  * @since 2
  */
 public class TestWrappedObjectMapperProcessor

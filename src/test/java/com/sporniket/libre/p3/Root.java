@@ -30,7 +30,7 @@ import java.net.URL;
  * <hr>
  * 
  * @author David SPORN
- * @version 2
+ * @version 4
  * @since 2
  * @see TestWrappedObjectMapperProcessor
  */
