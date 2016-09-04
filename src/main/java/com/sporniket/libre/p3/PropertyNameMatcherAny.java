@@ -31,7 +31,7 @@ package com.sporniket.libre.p3;
  * @version 4
  * @since 4
  */
-public class PropertyNameMatcherAny implements PropertyNameMatcher
+class PropertyNameMatcherAny implements PropertyNameMatcher
 {
 
 	@Override

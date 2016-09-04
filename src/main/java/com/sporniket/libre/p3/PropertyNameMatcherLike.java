@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  * @version 4
  * @since 1
  */
-public class PropertyNameMatcherLike implements PropertyNameMatcher
+class PropertyNameMatcherLike implements PropertyNameMatcher
 {
 	/**
 	 * Regular expression to match.
