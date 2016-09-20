@@ -15,6 +15,9 @@ Content
 **P3, the Programmable Properties Processor** listen for specific event related with properties file parsing. When recognising a specific property name, it parse the 
 value to create other processors to call, and learn which processor to call when a new property event is received.
 
+### What's new in v5
+* Use SSLPOI v0.2.0, that changes the syntax of the call statement (use argument order instead of explicite argument mapping).
+
 ### What's new in v4
 * Fixed : https://github.com/sporniket/p3/issues/1 .
 

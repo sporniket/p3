@@ -57,18 +57,18 @@ import com.sporniket.scripting.sslpoi.vess.VessNode;
  * 
  * on singleLinePropertyParsed with a String named name, a String named value
  *     if name is like "foo\\..*"
- *         call processFoo from foo using name as name, value as value
+ *         call processFoo from foo using name, value
  *     else if name is like "foo2\\..*"
- *         call processFoo2 from foo using name as name, value as value
+ *         call processFoo2 from foo using name, value
  *     else
- *         call process from foo using name as name, value as value
+ *         call process from foo using name, value
  *     endif
  * endon
  * 
  * on multipleLinePropertyParsed with a String named name, a String[] named value
  *     if name is "bar"
- *         call processBar from bar using name as name, value as value
- *         call process from foo using name as name, value as value
+ *         call processBar from bar using name, value
+ *         call process from foo using name, value
  *     endif
  * endon
  * </pre>
