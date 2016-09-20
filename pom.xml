@@ -25,7 +25,7 @@
 		<version.sporniket.core>16.08.00</version.sporniket.core>
 
 		<!-- sporniket sslpoi version -->
-		<version.sporniket.sslpoi>0.1.1</version.sporniket.sslpoi>
+		<version.sporniket.sslpoi>0.2.0</version.sporniket.sslpoi>
 	</properties>
 
 	<name>P3 : Programmable Properties Processor</name>

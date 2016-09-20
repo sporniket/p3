@@ -52,7 +52,7 @@ public class TestPropertyNameMatcherExactMatch
 			"define foo as new com.sporniket.libre.p3.PropertiesCatcher",
 			"on singleLinePropertyParsed with a String named name, a String named value",
 			"    if name is \"catched\"",
-			"        call store from foo using name as name, value as value",
+			"        call store from foo using name, value",
 			"    endif",
 			"",
 			"endon"
