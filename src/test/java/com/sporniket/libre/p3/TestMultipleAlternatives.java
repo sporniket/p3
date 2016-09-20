@@ -38,7 +38,7 @@ import com.sporniket.libre.io.parser.properties.SingleLinePropertyParsedEvent;
  * <hr>
  * 
  * @author David SPORN
- * @version 4
+ * @version 5
  * @since 4
  */
 public class TestMultipleAlternatives

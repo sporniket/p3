@@ -28,7 +28,7 @@ package com.sporniket.libre.p3;
  * <hr>
  * 
  * @author David SPORN
- * @version 4
+ * @version 5
  * @since 4
  */
 class PropertyNameMatcherAny implements PropertyNameMatcher

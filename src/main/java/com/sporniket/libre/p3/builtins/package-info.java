@@ -26,7 +26,7 @@
  * <hr>
  * 
  * @author David SPORN
- * @version 4
+ * @version 5
  * @since 2
  */
 package com.sporniket.libre.p3.builtins;
