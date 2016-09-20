@@ -3,7 +3,7 @@
 
 	<groupId>com.sporniket.p3</groupId>
 	<artifactId>p3</artifactId>
-	<version>5-SNAPSHOT</version>
+	<version>5</version>
 
 	<properties>
 		<url.base>https://github.com/sporniket/p3</url.base>
@@ -210,7 +210,7 @@
 	<scm>
 		<connection>scm:git:${url.base}.git</connection>
 		<url>${url.base}</url>
-		<tag>HEAD</tag>
+		<tag>v5</tag>
 	</scm>
 	<issueManagement>
 		<system>GitHub.com</system>
